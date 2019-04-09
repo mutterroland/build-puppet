@@ -31,6 +31,21 @@ class buildduty_tools::builddutytools {
             require => [
                 Python::Virtualenv['/home/buildduty/buildduty-tools'],
             ];
+        #cron job for FIC
+        '/etc/cron.d/firefoxinfrachangelog':
+            content => template('buildduty_tools/firefoxinfrachangelog.cron.erb'),
+            mode => '0755'
+            ensure => present;
+    }
+
+    git::repo{
+        'firefoxinfrachangelog-clone':
+            repo => 'https://github.com/mozilla-releng/firefox-infra-changelog',
+            dst_dir => '/home/dlabici/buildduty-tools/repos/firefoxinfrachangelog',
+            user => $users::buildduty::dlabici,
+            require = > [
+                File['/home/dlabici/buildduty-tools/repos'],
+            ];
     }
 
     mercurial::repo {
