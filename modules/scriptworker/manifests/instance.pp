@@ -17,6 +17,8 @@ define scriptworker::instance(
     $cot_job_type,
     $cot_product                  = 'firefox',
 
+    $github_oauth_token           = '',
+
     $work_dir                     = "${basedir}/work",
     $script_worker_config         = "${basedir}/scriptworker.yaml",
     $task_script_executable       = "${basedir}/bin/python",
@@ -38,10 +40,6 @@ define scriptworker::instance(
     include packages::mozilla::git
     include packages::mozilla::supervisor
     include tweaks::scriptworkerlogrotate
-
-    # These constants need to be filled in $script_worker_config, even though Chain of Trust is not enabled.
-    $git_key_repo_dir = "${basedir}/gpg_key_repo/"
-    $git_pubkey_dir   = "${basedir}/git_pubkeys/"
 
     validate_taskcluster_identifier($worker_group)
     validate_taskcluster_identifier($worker_type)
@@ -101,16 +99,9 @@ define scriptworker::instance(
     # Activate Chain Of Trust
     if $sign_chain_of_trust or $verify_cot_signature {
       scriptworker::chain_of_trust { $instance_name:
-        basedir          => $basedir,
-
-        git_key_repo_dir => $git_key_repo_dir,
-        git_key_repo_url => $scriptworker::instance::settings::git_key_repo_url,
-        git_pubkey_dir   => $git_pubkey_dir,
-
-        pubkey           => $config::scriptworker_gpg_public_key,
-        privkey          => $config::scriptworker_gpg_private_key,
-
-        username         => $username,
+        basedir         => $basedir,
+        ed25519_privkey => $config::scriptworker_ed25519_private_key,
+        username        => $username,
       }
     }
 }
