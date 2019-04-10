@@ -10,7 +10,7 @@ class buildduty_tools::builddutytools {
     include packages::mozilla::python27
     include packages::mozilla::py27_mercurial
     include packages::libffi
-
+    include packages::mozilla::git
     python::virtualenv {
         '/home/buildduty/buildduty-tools':
             python          => $::packages::mozilla::python27::python,
